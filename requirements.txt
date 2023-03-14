@@ -1,2 +1,5 @@
-transformers==2.1.0
+transformers==4.26.1
 torch==1.13.1
+optimum==1.7.1
+fastapi==0.94.0
+celery==5.2.7
