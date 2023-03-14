@@ -1,6 +1,11 @@
+from typing import List
+from celery.result import AsyncResult
 from typing import Optional
 from fastapi import APIRouter, status
-from src.models.ResultModel import ResultModel
+from fastapi.responses import JSONResponse
+from models.TaskModel import TaskModel, TaskStatus
+from models.TextGenerationResultModel import TextGenerationResultModel
+from src.tasks.generate_text import generate_text_task
 
 
 router = APIRouter(
@@ -12,11 +17,38 @@ router = APIRouter(
 
 @router.post(
     "/generate",
-    response_model=ResultModel,
+    response_model=TextGenerationResultModel,
     status_code=status.HTTP_202_CREATED,
 )
-def generate_text(
-    prompt: str, length: int, num_of_return_sequences: Optional[int] = None
+async def generate_text(
+    prompt: str, max_length: int, num_of_return_sequences: Optional[int] = None
 ):
-    # start celery prediction task
-    pass
+    """Create celery prediction task. Return task_id to client in order to retrieve result"""
+    task_id = generate_text_task.delay(
+        {
+            "prompt": prompt,
+            "max_length": max_length,
+            "num_of_return_sequences": num_of_return_sequences,
+        }
+    )
+    return {"task_id": str(task_id), "status": "Processing"}
+
+
+@router.get(
+    "/result/{task_id}",
+    response_model=TextGenerationResultModel,
+    status_code=200,
+    responses={202: {"model": TaskModel, "description": "Accepted: Not Ready"}},
+)
+async def get_result(task_id):
+    """Fetch text generation result for given task_id"""
+    task = AsyncResult(task_id)
+    if not task.ready():
+        return JSONResponse(
+            status_code=202,
+            content=TaskModel(task_id=str(task_id), status=TaskStatus.PROCESSING),
+        )
+    results: List[str] = task.get()
+    return TextGenerationResultModel(
+        task_id=str(task_id), status=TaskStatus.COMPLETED, results=results
+    )
