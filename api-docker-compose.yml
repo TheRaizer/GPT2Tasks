@@ -1,0 +1,16 @@
+version: '3'
+services:
+  api:
+    build:
+      context: .
+    ports:
+      - '8000:8000'
+    networks:
+      - text_generation
+    env_file:
+      - .dev.env
+      - .local.env
+
+networks:
+  text_generation:
+    driver: bridge

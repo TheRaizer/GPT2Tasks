@@ -1,5 +1,7 @@
 transformers==4.26.1
-torch==1.13.1
 optimum==1.7.1
 fastapi==0.94.0
 celery==5.2.7
+uvicorn[standard]==0.19.0
+pydantic==1.10.2
+typing==3.7.4.3

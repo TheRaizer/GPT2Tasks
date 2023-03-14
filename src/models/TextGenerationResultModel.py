@@ -1,6 +1,6 @@
 from typing import List
 
-from src.models import TaskModel
+from src.models.TaskModel import TaskModel
 
 
 class TextGenerationResultModel(TaskModel):

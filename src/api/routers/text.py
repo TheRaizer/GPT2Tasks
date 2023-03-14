@@ -1,7 +1,6 @@
-from typing import List
+from typing import List, cast, Optional
 from celery.result import AsyncResult
-from typing import Optional
-from fastapi import APIRouter, status
+from fastapi import APIRouter, HTTPException, status
 from fastapi.responses import JSONResponse
 from models.TaskModel import TaskModel, TaskStatus
 from models.TextGenerationResultModel import TextGenerationResultModel
@@ -46,9 +45,18 @@ async def get_result(task_id):
     if not task.ready():
         return JSONResponse(
             status_code=202,
-            content=TaskModel(task_id=str(task_id), status=TaskStatus.PROCESSING),
+            content=TaskModel(
+                task_id=str(task_id), status=TaskStatus.PROCESSING
+            ),
         )
-    results: List[str] = task.get()
+    results: Optional[List[str]] = cast(Optional[List[str]], task.get())
+
+    if results is None:
+        raise HTTPException(
+            status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="no results were found",
+        )
+
     return TextGenerationResultModel(
-        task_id=str(task_id), status=TaskStatus.COMPLETED, results=results
+        task_id=str(task_id), status=TaskStatus.COMPLETE, results=results
     )
