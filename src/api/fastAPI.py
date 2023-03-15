@@ -1,5 +1,5 @@
 from fastapi import FastAPI, status
-from routers import text
+from src.api.routers import text
 
 app = FastAPI()
 

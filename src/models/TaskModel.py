@@ -11,4 +11,4 @@ class TaskStatus(Enum):
 
 class TaskModel(BaseModel):
     task_id: str
-    status: TaskStatus
+    status: str

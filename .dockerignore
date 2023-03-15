@@ -26,3 +26,4 @@ export_onnx_model.sh
 tests
 .pylintrc
 venv
+gpt2_onnx

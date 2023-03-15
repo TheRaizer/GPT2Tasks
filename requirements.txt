@@ -1,7 +1,10 @@
 transformers==4.26.1
 optimum==1.7.1
 fastapi==0.94.0
-celery==5.2.7
+celery[amqp,redis]==5.2.7
 uvicorn[standard]==0.19.0
 pydantic==1.10.2
 typing==3.7.4.3
+onnxruntime==1.14.1
+onnx==1.13.1
+redis==4.5.1

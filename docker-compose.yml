@@ -1,0 +1,33 @@
+version: '3'
+services:
+  rabbitmq: # login guest:guest
+    image: 'rabbitmq:3-management'
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+    volumes:
+      - 'rabbitmq_data:/data'
+    hostname: rabbit_node_1
+    networks:
+      - text_generation
+  api:
+    build:
+      context: .
+    ports:
+      - '8000:8000'
+    networks:
+      - text_generation
+    volumes:
+      - './gpt2_onnx:/app/gpt2_onnx'
+    environment:
+      - BROKER_URL=amqp://guest:guest@rabbitmq:5672/ # reference it by the same name as the container since they are deployed under the same network.
+    env_file:
+      - .dev.env
+      - .local.env
+
+volumes:
+  rabbitmq_data:
+
+networks:
+  text_generation:
+    driver: bridge

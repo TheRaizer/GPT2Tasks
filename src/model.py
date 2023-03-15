@@ -2,7 +2,6 @@ from transformers import GPT2Tokenizer, GPT2LMHeadModel
 from optimum.onnxruntime import ORTModelForCausalLM
 from typing import cast
 
-
 # learn to load model from onnx here https://huggingface.co/docs/optimum/exporters/onnx/usage_guides/export_a_model
 # export gpt2 model to onnx like so: optimum-cli export onnx --model gpt2 gpt2_onnx/
 class LanguageModel:
@@ -38,3 +37,7 @@ class LanguageModel:
             sequences.append(decoded_sequence)
 
         return sequences
+
+
+# load model into memory for task usage
+language_model = LanguageModel(model_path="./gpt2_onnx")
