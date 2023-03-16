@@ -1,31 +1,15 @@
-import os
-from celery import Celery
-from celery import Celery
-import logging
-
+from src.tasks import app
 from src.model import language_model
+from celery.utils.log import get_task_logger
 
-logger = logging.getLogger(__name__)
-
-
-BROKER_URL = os.environ["BROKER_URL"]
-BACKEND_URL = os.environ["BACKEND_URL"]
-
-app = Celery(
-    "celery_app",
-    broker=BROKER_URL,
-    backend=BACKEND_URL,
-    include=["src.tasks"],
-)
+logger = get_task_logger(__name__)
 
 
 @app.task(
-    ignore_result=False,
-    bind=True,
-    path=("model", "LanguageModel"),
-    name="generate_text_task",
+    name="generative_tasks.generate_text",
+    acks_late=True,
 )
-def generate_text_task(self, data):
+def generate_text(data):
     """
     When this task is called we first execute the __call__ method of InferenceTask
     in the context of model.LanguageModel. We then execute whatever is in this function
@@ -45,6 +29,10 @@ def generate_text_task(self, data):
         prompt=data["prompt"],
         max_length=data["max_length"],
         num_return_sequences=num_return_sequences,
+    )
+
+    logger.info(
+        "generated outputs from prompt: {prompt}".format(prompt=data["prompt"])
     )
 
     return outputs
