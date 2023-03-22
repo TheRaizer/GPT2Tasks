@@ -1,5 +1,5 @@
 from src.tasks import app
-from src.model import language_model
+from src.tasks import language_model
 from celery.utils.log import get_task_logger
 
 logger = get_task_logger(__name__)
@@ -19,16 +19,10 @@ def generate_text(data):
     base: is what will initially run before the rest of the task is executed.
     """
 
-    num_return_sequences = (
-        1
-        if data["num_return_sequences"] is None
-        else data["num_return_sequences"]
-    )
-
     outputs = language_model.generate_text(
         prompt=data["prompt"],
         max_length=data["max_length"],
-        num_return_sequences=num_return_sequences,
+        num_return_sequences=data["num_return_sequences"],
     )
 
     logger.info(

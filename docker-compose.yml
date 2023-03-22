@@ -13,8 +13,11 @@ services:
   api:
     build:
       context: .
+    depends_on:
+      - rabbitmq
     ports:
       - '8000:8000'
+      - '5555:5555'
     networks:
       - text_generation
     volumes:

@@ -37,7 +37,3 @@ class LanguageModel:
             sequences.append(decoded_sequence)
 
         return sequences
-
-
-# load model into memory for task usage
-language_model = LanguageModel(model_path="./gpt2_onnx")

@@ -1,4 +1,7 @@
 import os
+from kombu import Exchange, Queue
+
+from src.tasks.task_routers.generate_text_router import generate_text_router
 
 broker_url = os.environ["BROKER_URL"]
 
@@ -7,8 +10,21 @@ imports = ("src.tasks.generative_tasks",)
 
 result_backend = os.environ["BACKEND_URL"]
 
-# TODO: https://docs.celeryq.dev/en/stable/userguide/routing.html#guide-routing potentially route tasks to different queues depending on
-# TODO the max_length and num_return_sequences.
-# TODO: Use flower in start_app.sh to monitor tasks
 # default is 4. We lessen this because model inference may take a while.
 worker_prefetch_multiplier = 2
+
+task_routes = (generate_text_router,)
+
+
+task_queues = (
+    Queue(  # default queue for all tasks
+        "default",
+        Exchange("default", type="direct"),
+        routing_key="task.default",
+    ),
+    Queue(  # priority queue for generating text (more workers for larger tasks)
+        "long",
+        Exchange("default", type="direct"),
+        routing_key="generative.text.long",
+    ),
+)
