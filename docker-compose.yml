@@ -25,7 +25,6 @@ services:
     environment:
       - BROKER_URL=amqp://guest:guest@rabbitmq:5672/ # reference it by the same name as the container since they are deployed under the same network.
     env_file:
-      - .dev.env
       - .local.env
 
 volumes:
